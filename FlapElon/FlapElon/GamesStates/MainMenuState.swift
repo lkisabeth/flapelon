@@ -44,6 +44,9 @@ class MainMenuState: GKState {
     logo.position = CGPoint(x: scene.size.width / 2, y: scene.size.height * 0.8)
     logo.zPosition = Layer.ui.rawValue
     scene.worldNode.addChild(logo)
+    
+    // Background Music
+    SKTAudio.sharedInstance().playBackgroundMusic("backgroundMusic.wav")
 
     // Play Button
     let playButton = SKSpriteNode(imageNamed: "Button")
@@ -64,18 +67,5 @@ class MainMenuState: GKState {
     let rateButtonText = SKSpriteNode(imageNamed: "Rate")
     rateButtonText.position = CGPoint.zero
     rateButton.addChild(rateButtonText)
-
-    // Learn Button
-    let learnButton = SKSpriteNode(imageNamed: "button_learn")
-    learnButton.position = CGPoint(x: scene.size.width * 0.5, y: learnButton.size.height / 2 + scene.margin)
-    learnButton.zPosition = Layer.ui.rawValue
-    scene.worldNode.addChild(learnButton)
-
-    // Bounce
-    let scaleUp = SKAction.scale(to: 1.02, duration: 0.75)
-    scaleUp.timingMode = .easeInEaseOut
-    let scaleDown = SKAction.scale(to: 0.98, duration: 0.75)
-    scaleDown.timingMode = .easeInEaseOut
-    learnButton.run(SKAction.repeatForever(SKAction.sequence([scaleUp,scaleDown])))
   }
 }

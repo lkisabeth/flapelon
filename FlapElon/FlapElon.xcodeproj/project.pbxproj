@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		072B5A1A22941CDF00AA51EC /* beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 072B5A1922941CDE00AA51EC /* beep.wav */; };
+		072B5A1C2294244900AA51EC /* backgroundMusic.wav in Resources */ = {isa = PBXBuildFile; fileRef = 072B5A1B2294244900AA51EC /* backgroundMusic.wav */; };
+		072B5A1E229429F600AA51EC /* playingMusic.wav in Resources */ = {isa = PBXBuildFile; fileRef = 072B5A1D229429F600AA51EC /* playingMusic.wav */; };
+		072B5A2022942C8F00AA51EC /* failure.wav in Resources */ = {isa = PBXBuildFile; fileRef = 072B5A1F22942C8F00AA51EC /* failure.wav */; };
+		072B5A22229466E700AA51EC /* impact.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 072B5A21229466E700AA51EC /* impact.mp3 */; };
+		072B5A242294682200AA51EC /* gameOver.wav in Resources */ = {isa = PBXBuildFile; fileRef = 072B5A232294682200AA51EC /* gameOver.wav */; };
+		072B5A262294697B00AA51EC /* flap.wav in Resources */ = {isa = PBXBuildFile; fileRef = 072B5A252294697B00AA51EC /* flap.wav */; };
 		074C42CA2293285B00B3B087 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074C42C92293285B00B3B087 /* AppDelegate.swift */; };
 		074C42CC2293285B00B3B087 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 074C42CB2293285B00B3B087 /* GameScene.sks */; };
 		074C42CE2293285B00B3B087 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 074C42CD2293285B00B3B087 /* Actions.sks */; };
@@ -41,12 +48,8 @@
 		074C43392293567100B3B087 /* SKTTimingFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074C432D2293567000B3B087 /* SKTTimingFunctions.swift */; };
 		074C433A2293567100B3B087 /* CGFloat+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074C432E2293567100B3B087 /* CGFloat+Extensions.swift */; };
 		074C43422293568100B3B087 /* pop.wav in Resources */ = {isa = PBXBuildFile; fileRef = 074C433B2293568100B3B087 /* pop.wav */; };
-		074C43432293568100B3B087 /* coin.wav in Resources */ = {isa = PBXBuildFile; fileRef = 074C433C2293568100B3B087 /* coin.wav */; };
 		074C43442293568100B3B087 /* ding.wav in Resources */ = {isa = PBXBuildFile; fileRef = 074C433D2293568100B3B087 /* ding.wav */; };
-		074C43452293568100B3B087 /* falling.wav in Resources */ = {isa = PBXBuildFile; fileRef = 074C433E2293568100B3B087 /* falling.wav */; };
-		074C43462293568100B3B087 /* hitGround.wav in Resources */ = {isa = PBXBuildFile; fileRef = 074C433F2293568100B3B087 /* hitGround.wav */; };
 		074C43472293568100B3B087 /* whack.wav in Resources */ = {isa = PBXBuildFile; fileRef = 074C43402293568100B3B087 /* whack.wav */; };
-		074C43482293568100B3B087 /* flapping.wav in Resources */ = {isa = PBXBuildFile; fileRef = 074C43412293568100B3B087 /* flapping.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +70,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		072B5A1922941CDE00AA51EC /* beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep.wav; sourceTree = "<group>"; };
+		072B5A1B2294244900AA51EC /* backgroundMusic.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = backgroundMusic.wav; sourceTree = "<group>"; };
+		072B5A1D229429F600AA51EC /* playingMusic.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = playingMusic.wav; sourceTree = "<group>"; };
+		072B5A1F22942C8F00AA51EC /* failure.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = failure.wav; sourceTree = "<group>"; };
+		072B5A21229466E700AA51EC /* impact.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = impact.mp3; sourceTree = "<group>"; };
+		072B5A232294682200AA51EC /* gameOver.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = gameOver.wav; sourceTree = "<group>"; };
+		072B5A252294697B00AA51EC /* flap.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = flap.wav; sourceTree = "<group>"; };
 		074C42C62293285B00B3B087 /* FlapElon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlapElon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		074C42C92293285B00B3B087 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		074C42CB2293285B00B3B087 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -107,12 +117,8 @@
 		074C432D2293567000B3B087 /* SKTTimingFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SKTTimingFunctions.swift; sourceTree = "<group>"; };
 		074C432E2293567100B3B087 /* CGFloat+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGFloat+Extensions.swift"; sourceTree = "<group>"; };
 		074C433B2293568100B3B087 /* pop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = pop.wav; sourceTree = "<group>"; };
-		074C433C2293568100B3B087 /* coin.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = coin.wav; sourceTree = "<group>"; };
 		074C433D2293568100B3B087 /* ding.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = ding.wav; sourceTree = "<group>"; };
-		074C433E2293568100B3B087 /* falling.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = falling.wav; sourceTree = "<group>"; };
-		074C433F2293568100B3B087 /* hitGround.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = hitGround.wav; sourceTree = "<group>"; };
 		074C43402293568100B3B087 /* whack.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = whack.wav; sourceTree = "<group>"; };
-		074C43412293568100B3B087 /* flapping.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = flapping.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -269,11 +275,14 @@
 		074C43202293564E00B3B087 /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
-				074C433C2293568100B3B087 /* coin.wav */,
+				072B5A1B2294244900AA51EC /* backgroundMusic.wav */,
+				072B5A1D229429F600AA51EC /* playingMusic.wav */,
+				072B5A1922941CDE00AA51EC /* beep.wav */,
 				074C433D2293568100B3B087 /* ding.wav */,
-				074C433E2293568100B3B087 /* falling.wav */,
-				074C43412293568100B3B087 /* flapping.wav */,
-				074C433F2293568100B3B087 /* hitGround.wav */,
+				072B5A232294682200AA51EC /* gameOver.wav */,
+				072B5A1F22942C8F00AA51EC /* failure.wav */,
+				072B5A21229466E700AA51EC /* impact.mp3 */,
+				072B5A252294697B00AA51EC /* flap.wav */,
 				074C433B2293568100B3B087 /* pop.wav */,
 				074C43402293568100B3B087 /* whack.wav */,
 			);
@@ -385,17 +394,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				074C42D52293285B00B3B087 /* Main.storyboard in Resources */,
+				072B5A1E229429F600AA51EC /* playingMusic.wav in Resources */,
+				072B5A22229466E700AA51EC /* impact.mp3 in Resources */,
 				074C42CC2293285B00B3B087 /* GameScene.sks in Resources */,
-				074C43452293568100B3B087 /* falling.wav in Resources */,
 				074C42D72293285E00B3B087 /* Assets.xcassets in Resources */,
+				072B5A1A22941CDF00AA51EC /* beep.wav in Resources */,
 				074C43422293568100B3B087 /* pop.wav in Resources */,
-				074C43462293568100B3B087 /* hitGround.wav in Resources */,
 				074C42DA2293285E00B3B087 /* LaunchScreen.storyboard in Resources */,
-				074C43432293568100B3B087 /* coin.wav in Resources */,
 				074C43442293568100B3B087 /* ding.wav in Resources */,
-				074C43482293568100B3B087 /* flapping.wav in Resources */,
+				072B5A2022942C8F00AA51EC /* failure.wav in Resources */,
+				072B5A1C2294244900AA51EC /* backgroundMusic.wav in Resources */,
+				072B5A262294697B00AA51EC /* flap.wav in Resources */,
 				074C43222293565A00B3B087 /* sprites.atlas in Resources */,
 				074C42CE2293285B00B3B087 /* Actions.sks in Resources */,
+				072B5A242294682200AA51EC /* gameOver.wav in Resources */,
 				074C43472293568100B3B087 /* whack.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

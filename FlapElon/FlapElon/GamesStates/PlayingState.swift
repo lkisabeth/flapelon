@@ -22,6 +22,7 @@ class PlayingState: GKState {
     scene.player.movementAllowed = true
     scene.player.animationComponent.startAnimation()
     scene.player.animationComponent.stopWobble()
+    SKTAudio.sharedInstance().playBackgroundMusic("playingMusic.wav")
   }
 
   override func isValidNextState(_ stateClass: AnyClass) -> Bool {

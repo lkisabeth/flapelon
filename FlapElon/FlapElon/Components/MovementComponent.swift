@@ -12,7 +12,7 @@ import GameplayKit
 class MovementComponent: GKComponent {
   let spriteComponent: SpriteComponent
 
-  let flapAction = SKAction.playSoundFileNamed("flapping.wav", waitForCompletion: false)
+  let flapAction = SKAction.playSoundFileNamed("flap.wav", waitForCompletion: false)
 
   let impulse: CGFloat = 400
   var velocity = CGPoint.zero
@@ -20,7 +20,7 @@ class MovementComponent: GKComponent {
 
   var velocityModifier: CGFloat = 1000.0
   var angularVelocity: CGFloat = 0.0
-  let minDegrees: CGFloat = -90
+  let minDegrees: CGFloat = -75
   let maxDegrees: CGFloat = 25
 
   var lastTouchTime: TimeInterval = 0

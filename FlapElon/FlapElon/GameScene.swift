@@ -68,7 +68,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabel: SKLabelNode!
     var fontName = "AmericanTypewriter-Bold"
     var margin: CGFloat = 20.0
-    let coinAction = SKAction.playSoundFileNamed("coin.wav", waitForCompletion: false)
+    let beepAction = SKAction.playSoundFileNamed("beep.wav", waitForCompletion: false)
     
     init(size: CGSize, stateClass: AnyClass, delegate: GameSceneDelegate) {
         gameSceneDelegate = delegate
@@ -104,6 +104,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         playableHeight = background.size.height
         
         worldNode.addChild(background)
+        SKTAudio().playBackgroundMusic("backgroundMusic.wav")
         
         // Add Physics
         let lowerLeft = CGPoint(x: 0, y: playableStart)
@@ -240,7 +241,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     self.score += 1
                     self.scoreLabel.text = "\(self.score / 2)"
                     obstacle.userData?["Passed"] = NSNumber(value: true as Bool)
-                    self.run(self.coinAction)
+                    self.run(self.beepAction)
                 }
             }
             
@@ -269,12 +270,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         UIApplication.shared.open(url!, options: [:], completionHandler: nil)
     }
     
-    func learn() {
-        let urlString = "blank"
-        let url = URL(string: urlString)
-        UIApplication.shared.open(url!, options: [:], completionHandler: nil)
-    }
-    
     func didBegin(_ contact: SKPhysicsContact) {
         let other = contact.bodyA.categoryBitMask == PhysicsCategory.Player ? contact.bodyB : contact.bodyA
         if other.categoryBitMask == PhysicsCategory.Ground {
@@ -295,7 +290,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             switch stateMachine.currentState {
             case is MainMenuState:
                 if touchLocation.y < size.height * 0.15 {
-                    learn()
+                    //learn()
                 } else if touchLocation.x < size.width * 0.6 {
                     restartGame(TutorialState.self)
                 } else {

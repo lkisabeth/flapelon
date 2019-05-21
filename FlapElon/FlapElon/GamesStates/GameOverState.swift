@@ -12,7 +12,7 @@ import GameplayKit
 class GameOverState: GKState {
   unowned let scene: GameScene
 
-  let hitGroundAction = SKAction.playSoundFileNamed("hitGround.wav", waitForCompletion: false)
+  let hitGroundAction = SKAction.playSoundFileNamed("impact.mp3", waitForCompletion: false)
   let animationDelay = 0.3
 
   init(scene: SKScene) {
@@ -22,6 +22,7 @@ class GameOverState: GKState {
 
   override func didEnter(from previousState: GKState?) {
     scene.run(hitGroundAction)
+    SKTAudio.sharedInstance().playBackgroundMusic("gameOver.wav")
     scene.stopSpawning()
     scene.player.movementAllowed = false
     showScoreCard()

@@ -12,8 +12,8 @@ import GameplayKit
 class FallingState: GKState {
   unowned let scene: GameScene
 
-  let whackAction = SKAction.playSoundFileNamed("whack.wav", waitForCompletion: false)
-  let fallingAction = SKAction.playSoundFileNamed("falling.wav", waitForCompletion: false)
+  let whackAction = SKAction.playSoundFileNamed("impact.mp3", waitForCompletion: false)
+  let fallingAction = SKAction.playSoundFileNamed("failure.wav", waitForCompletion: false)
 
   init(scene: SKScene) {
     self.scene = scene as! GameScene
