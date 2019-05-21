@@ -9,102 +9,326 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
-    
-    var entities = [GKEntity]()
-    var graphs = [String : GKGraph]()
-    
-    private var lastUpdateTime : TimeInterval = 0
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
-    
-    override func sceneDidLoad() {
+enum Layer: CGFloat {
+    case background
+    case obstacle
+    case foreground
+    case player
+    case ui
+    case flash
+}
 
-        self.lastUpdateTime = 0
+struct PhysicsCategory {
+    static let None: UInt32 = 0
+    static let Player: UInt32 = 0b1
+    static let Obstacle: UInt32 = 0b10
+    static let Ground: UInt32 = 0b100
+}
+
+protocol GameSceneDelegate {
+    func screenshot() -> UIImage
+    func shareString(_ string: String, url: URL, image: UIImage)
+}
+
+class GameScene: SKScene, SKPhysicsContactDelegate {
+    
+    var gameSceneDelegate: GameSceneDelegate
+    let appStoreLink = "blank"
+    
+    let worldNode = SKNode()
+    var playableStart: CGFloat = 0
+    var playableHeight: CGFloat = 0
+    
+    let numberOfForegrounds = 2
+    let groundSpeed: CGFloat = 150
+    
+    let bottomObstacleMinFraction: CGFloat = 0.1
+    let bottomObstacleMaxFraction: CGFloat = 0.6
+    let gapMultiplier: CGFloat = 4.5 // the higher the number, the easier the game
+    
+    let firstSpawnDelay: TimeInterval = 1.75
+    let everySpawnDelay: TimeInterval = 1.5
+    
+    var deltaTime: TimeInterval = 0
+    var lastUpdateTimeInterval: TimeInterval = 0
+    
+    let player = PlayerEntity(imageName: "PixelElon-1")
+    
+    let popAction = SKAction.playSoundFileNamed("pop.wav", waitForCompletion: false)
+    var initialState: AnyClass
+    lazy var stateMachine: GKStateMachine = GKStateMachine(states: [
+        MainMenuState(scene: self),
+        TutorialState(scene: self),
+        PlayingState(scene: self),
+        FallingState(scene: self),
+        GameOverState(scene: self)
+        ])
+    
+    var score = 0
+    var scoreLabel: SKLabelNode!
+    var fontName = "AmericanTypewriter-Bold"
+    var margin: CGFloat = 20.0
+    let coinAction = SKAction.playSoundFileNamed("coin.wav", waitForCompletion: false)
+    
+    init(size: CGSize, stateClass: AnyClass, delegate: GameSceneDelegate) {
+        gameSceneDelegate = delegate
+        initialState = stateClass
+        super.init(size: size)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func didMove(to view: SKView) {
+        physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        physicsWorld.contactDelegate = self
         
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
+        addChild(worldNode)
+        // setupBackground()
+        // setupForeground()
+        // setupPlayer()
+        // setupScoreLabel()
+        // spawnObstacle()
+        // startSpawning()
+        stateMachine.enter(initialState)
+    }
+    
+    func setupBackground() {
+        let background = SKSpriteNode(imageNamed: "Background")
+        background.anchorPoint = CGPoint(x: 0.5, y: 1.0)
+        background.position = CGPoint(x: size.width / 2, y: size.height)
+        background.zPosition = Layer.background.rawValue
         
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
+        playableStart = size.height - background.size.height
+        playableHeight = background.size.height
         
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 2.5
+        worldNode.addChild(background)
+        
+        // Add Physics
+        let lowerLeft = CGPoint(x: 0, y: playableStart)
+        let lowerRight = CGPoint(x: size.width, y: playableStart)
+        physicsBody = SKPhysicsBody(edgeFrom: lowerLeft, to: lowerRight)
+        physicsBody?.categoryBitMask = PhysicsCategory.Ground
+        physicsBody?.collisionBitMask = 0
+        physicsBody?.contactTestBitMask = PhysicsCategory.Player
+    }
+    
+    func setupForeground() {
+        for i in 0..<numberOfForegrounds {
+            let foreground = SKSpriteNode(imageNamed: "Ground")
+            foreground.anchorPoint = CGPoint(x: 0.0, y: 1.0)
+            foreground.position = CGPoint(x: CGFloat(i) * foreground.size.width, y: playableStart)
+            foreground.zPosition = Layer.foreground.rawValue
+            foreground.name = "foreground"
             
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
+            worldNode.addChild(foreground)
         }
     }
     
-    
-    func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
+    func setupPlayer() {
+        let playerNode = player.spriteComponent.node
+        playerNode.position = CGPoint(x: size.width * 0.2, y: playableHeight * 0.4 + playableStart)
+        playerNode.zPosition = Layer.player.rawValue
+        
+        worldNode.addChild(playerNode)
+        
+        player.movementComponent.playableStart = playableStart
+        player.animationComponent.startWobble()
     }
     
-    func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
-        }
+    func setupScoreLabel() {
+        scoreLabel = SKLabelNode(fontNamed: fontName)
+        scoreLabel.fontColor = SKColor(red: 101.0/255.0, green: 71.0/255.0, blue: 73.0/255.0, alpha: 1.0)
+        scoreLabel.position = CGPoint(x: size.width / 2, y: size.height - margin)
+        scoreLabel.verticalAlignmentMode = .top
+        scoreLabel.zPosition = Layer.ui.rawValue
+        scoreLabel.text = "\(score)"
+        worldNode.addChild(scoreLabel)
     }
     
-    func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
-            self.addChild(n)
+    func createObstacle() -> SKSpriteNode {
+        let obstacle = ObstacleEntity(imageName: "Cactus")
+        let obstacleNode = obstacle.spriteComponent.node
+        obstacleNode.zPosition = Layer.obstacle.rawValue
+        obstacleNode.name = "obstacle"
+        obstacleNode.userData = NSMutableDictionary()
+        
+        return obstacle.spriteComponent.node
+    }
+    
+    func stopSpawning() {
+        removeAction(forKey: "spawn")
+        worldNode.enumerateChildNodes(withName: "obstacle", using: { node, stop in node.removeAllActions()
+        })
+    }
+    
+    func startSpawning() {
+        let firstDelay = SKAction.wait(forDuration: firstSpawnDelay)
+        let spawn = SKAction.run(spawnObstacle)
+        let everyDelay = SKAction.wait(forDuration: everySpawnDelay)
+        
+        let spawnSequence = SKAction.sequence([spawn, everyDelay])
+        let foreverSpawn = SKAction.repeatForever(spawnSequence)
+        let overallSequence = SKAction.sequence([firstDelay, foreverSpawn])
+        
+        // run(overallSequence)
+        run(overallSequence, withKey: "spawn")
+    }
+    
+    func spawnObstacle() {
+        // Bottom Obstacle
+        let bottomObstacle = createObstacle()
+        let startX = size.width + bottomObstacle.size.width / 2
+        
+        let bottomObstacleMin = (playableStart - bottomObstacle.size.height / 2) + playableHeight * bottomObstacleMinFraction
+        let bottomObstacleMax = (playableStart - bottomObstacle.size.height / 2) + playableHeight * bottomObstacleMaxFraction
+        
+        // let randomValue = CGFloat.random(bottomObstacleMin, max: bottomObstacleMax)
+        
+        // Using GameplayKit's randomization
+        let randomSource = GKARC4RandomSource()
+        let randomDistribution = GKRandomDistribution(randomSource: randomSource, lowestValue: Int(round(bottomObstacleMin)), highestValue: Int(round(bottomObstacleMax)))
+        let randomValue = randomDistribution.nextInt()
+        
+        bottomObstacle.position = CGPoint(x: startX, y: CGFloat(randomValue))
+        worldNode.addChild(bottomObstacle)
+        
+        // Top Obstacle
+        let topObstacle = createObstacle()
+        topObstacle.zRotation = CGFloat(180).degreesToRadians()
+        topObstacle.position = CGPoint(x: startX, y: bottomObstacle.position.y + bottomObstacle.size.height / 2 + topObstacle.size.height / 2 + player.spriteComponent.node.size.height * gapMultiplier)
+        worldNode.addChild(topObstacle)
+        
+        // Move Obstacles
+        let moveX = size.width + topObstacle.size.width
+        let moveDuration = moveX / groundSpeed
+        
+        let sequence = SKAction.sequence([
+            SKAction.moveBy(x: -moveX, y: 0, duration: TimeInterval(moveDuration)),
+            SKAction.removeFromParent()
+            ])
+        
+        topObstacle.run(sequence)
+        bottomObstacle.run(sequence)
+    }
+    
+    func updateForeground() {
+        worldNode.enumerateChildNodes(withName: "foreground", using:
+            { node, stop in
+                if let foreground = node as? SKSpriteNode {
+                    let moveAmount = CGPoint(x: -self.groundSpeed * CGFloat(self.deltaTime),
+                                             y: 0)
+                    foreground.position += moveAmount
+                    
+                    if foreground.position.x < -foreground.size.width {
+                        foreground.position += CGPoint(x: foreground.size.width * CGFloat(self.numberOfForegrounds), y: 0)
+                    }
+                }
+        })
+    }
+    
+    func updateScore() {
+        worldNode.enumerateChildNodes(withName: "obstacle", using: { node, stop in
+            if let obstacle = node as? SKSpriteNode {
+                if let passed = obstacle.userData?["Passed"] as? NSNumber {
+                    if passed.boolValue {
+                        return
+                    }
+                }
+                if self.player.spriteComponent.node.position.x > obstacle.position.x + obstacle.size.width / 2 {
+                    self.score += 1
+                    self.scoreLabel.text = "\(self.score / 2)"
+                    obstacle.userData?["Passed"] = NSNumber(value: true as Bool)
+                    self.run(self.coinAction)
+                }
+            }
+            
+        })
+    }
+    
+    func restartGame(_ stateClass: AnyClass) {
+        run(popAction)
+        let newScene = GameScene(size: size, stateClass: stateClass, delegate: gameSceneDelegate)
+        let transition = SKTransition.fade(with: SKColor.black, duration: 0.02)
+        view?.presentScene(newScene, transition: transition)
+    }
+    
+    func shareScore() {
+        let urlString = appStoreLink
+        let url = URL(string: urlString)
+        
+        let screenshot = gameSceneDelegate.screenshot()
+        let initialTextString = "OMG! I scored \(score / 2) points in FlapElon!"
+        gameSceneDelegate.shareString(initialTextString, url: url!, image: screenshot)
+    }
+    
+    func rateApp() {
+        let urlString = appStoreLink
+        let url = URL(string: urlString)
+        UIApplication.shared.open(url!, options: [:], completionHandler: nil)
+    }
+    
+    func learn() {
+        let urlString = "blank"
+        let url = URL(string: urlString)
+        UIApplication.shared.open(url!, options: [:], completionHandler: nil)
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        let other = contact.bodyA.categoryBitMask == PhysicsCategory.Player ? contact.bodyB : contact.bodyA
+        if other.categoryBitMask == PhysicsCategory.Ground {
+            // print("hit ground")
+            stateMachine.enter(GameOverState.self)
+        }
+        if other.categoryBitMask == PhysicsCategory.Obstacle {
+            // print("hit obstacle")
+            stateMachine.enter(FallingState.self)
         }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
+        // player.movementComponent.applyImpulse(lastUpdateTimeInterval)
+        if let touch = touches.first {
+            let touchLocation = touch.location(in: self)
+            
+            switch stateMachine.currentState {
+            case is MainMenuState:
+                if touchLocation.y < size.height * 0.15 {
+                    learn()
+                } else if touchLocation.x < size.width * 0.6 {
+                    restartGame(TutorialState.self)
+                } else {
+                    rateApp()
+                }
+            case is TutorialState:
+                stateMachine.enter(PlayingState.self)
+            case is PlayingState:
+                player.movementComponent.applyImpulse(lastUpdateTimeInterval)
+            case is GameOverState:
+                if touchLocation.x < size.width * 0.6 {
+                    restartGame(TutorialState.self)
+                } else {
+                    shareScore()
+                }
+            default:
+                break
+            }
         }
-        
-        for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
-        
-        // Initialize _lastUpdateTime if it has not already been
-        if (self.lastUpdateTime == 0) {
-            self.lastUpdateTime = currentTime
+        if lastUpdateTimeInterval == 0 {
+            lastUpdateTimeInterval = currentTime
         }
         
-        // Calculate time since last update
-        let dt = currentTime - self.lastUpdateTime
+        deltaTime = currentTime - lastUpdateTimeInterval
+        lastUpdateTimeInterval = currentTime
         
-        // Update entities
-        for entity in self.entities {
-            entity.update(deltaTime: dt)
-        }
+        // updateForeground()
+        stateMachine.update(deltaTime: deltaTime)
         
-        self.lastUpdateTime = currentTime
+        player.update(deltaTime: deltaTime)
     }
 }
+
